@@ -15,7 +15,8 @@ def register_routes(app):
                 session["user_id"] = user[0]
                 return redirect("/dashboard")
 
-        return render_template("login.html", error="Invalid credentials")
+            return render_template("login.html", error="Invalid credentials")
+        return render_template("login.html")
 
     @app.route("/signup", methods=["GET", "POST"])
     def signup():
