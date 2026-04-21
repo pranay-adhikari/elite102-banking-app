@@ -5,19 +5,27 @@ def create_user(username, password):
     cursor = conn.cursor()
 
     cursor.execute(
+        "SELECT 1 FROM users WHERE username=%s",
+        (username,)
+    )
+    if cursor.fetchone():
+        conn.close()
+        return False
+    
+    cursor.execute(
         "INSERT INTO users (username, password) VALUES (%s, %s)",
         (username, password)
     )
 
     user_id = cursor.lastrowid
-
     cursor.execute(
         "INSERT INTO accounts (user_id, balance) VALUES (%s, %s)",
         (user_id, 0)
     )
-
+    
     conn.commit()
     conn.close()
+    return True
 
 
 def login_user(username, password):

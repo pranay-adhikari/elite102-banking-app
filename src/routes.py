@@ -21,17 +21,21 @@ def register_routes(app):
     @app.route("/signup", methods=["GET", "POST"])
     def signup():
         if request.method == "POST":
-            operations.create_user(
+            success = operations.create_user(
                 request.form["username"],
                 request.form["password"]
             )
-            return redirect("/")
+            
+            if success:
+                return redirect("/")
+            
+            return render_template("signup.html", error="Username aleady taken")
         return render_template("signup.html")
 
     @app.route("/dashboard", methods=["GET", "POST"])
     def dashboard():
         if "user_id" not in session:
-            return redirect("/")
+            return redirect("/", code=302)
 
         user_id = session["user_id"]
 

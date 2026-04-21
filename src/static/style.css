@@ -1,30 +1,43 @@
 body {
     font-family: Arial, sans-serif;
-    background: #f4f6f8;
+    background: #121212;
     margin: 0;
     padding: 0;
+    color: #e0e0e0;
 }
 
 .container {
     width: 400px;
     margin: 80px auto;
-    background: white;
+    background: #1e1e1e;
     padding: 25px;
     border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    box-shadow: 0 0 15px rgba(0,0,0,0.6);
 }
 
 h2 {
     text-align: center;
     margin-bottom: 20px;
+    color: #ffffff;
 }
 
 input {
     width: 100%;
     padding: 10px;
-    margin: 8px 0;
+    margin: 8px -8px;
     border-radius: 5px;
-    border: 1px solid #ccc;
+    border: 1px solid #333;
+    background: #2a2a2a;
+    color: #e0e0e0;
+}
+
+input::placeholder {
+    color: #888;
+}
+
+input:focus {
+    outline: none;
+    border: 1px solid #007BFF;
 }
 
 button {
@@ -32,37 +45,42 @@ button {
     padding: 10px;
     margin-top: 10px;
     border: none;
-    background: #007BFF;
+    background: #1a73e8;
     color: white;
     border-radius: 5px;
     cursor: pointer;
 }
 
 button:hover {
-    background: #0056b3;
+    background: #125ac1;
 }
 
 a {
     display: block;
     text-align: center;
     margin-top: 10px;
-    color: #007BFF;
+    color: #4dabf7;
     text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
 }
 
 .dashboard {
     width: 500px;
     margin: 60px auto;
-    background: white;
+    background: #1e1e1e;
     padding: 25px;
     border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    box-shadow: 0 0 15px rgba(0,0,0,0.6);
 }
 
 .balance {
     font-size: 24px;
     text-align: center;
     margin-bottom: 20px;
+    color: #ffffff;
 }
 
 .actions {
