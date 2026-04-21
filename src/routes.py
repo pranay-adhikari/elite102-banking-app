@@ -12,7 +12,7 @@ def register_routes(app):
             )
 
             if user:
-                session["user_id"] = user[0]
+                session["user_id"] = user
                 return redirect("/dashboard")
 
             return render_template("login.html", error="Invalid credentials")

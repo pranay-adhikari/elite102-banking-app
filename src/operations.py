@@ -1,4 +1,6 @@
 from db import get_connection
+from argon2 import PasswordHasher 
+from argon2.exceptions import VerifyMismatchError
 
 def create_user(username, password):
     conn = get_connection()
@@ -11,10 +13,13 @@ def create_user(username, password):
     if cursor.fetchone():
         conn.close()
         return False
-    
+
+    ph = PasswordHasher()
+    hash = ph.hash(password)
+
     cursor.execute(
         "INSERT INTO users (username, password) VALUES (%s, %s)",
-        (username, password)
+        (username, hash)
     )
 
     user_id = cursor.lastrowid
@@ -32,14 +37,33 @@ def login_user(username, password):
     conn = get_connection()
     cursor = conn.cursor()
 
+    ph = PasswordHasher()
+
     cursor.execute(
-        "SELECT id FROM users WHERE username=%s AND password=%s",
-        (username, password)
+        "SELECT id, password FROM users WHERE username=%s",
+        (username,)
     )
 
     user = cursor.fetchone()
+    if user:
+        try:
+            ph.verify(user[1], password)
+
+            if ph.check_needs_rehash(user[1]):
+                new_hash = ph.hash(password)
+                cursor.execute(
+                    "UPDATE users SET password=%s WHERE id=%s",
+                    (new_hash, user[0])
+                )
+                conn.commit()
+
+            conn.close()
+            return user[0]
+        except VerifyMismatchError:
+            pass
+
     conn.close()
-    return user
+    return None
 
 
 def get_balance(user_id):
