@@ -78,8 +78,8 @@ def get_user_by_id(user_id):
         "SELECT id, username FROM users WHERE id=%s",
         (user_id,)
     )
-    row = cursor.fetchone()
 
+    row = cursor.fetchone()
     conn.close()
 
     if row:
@@ -127,3 +127,35 @@ def withdraw(user_id, amount):
     conn.commit()
     conn.close()
     return success
+
+def add_transaction(user_id, type, amount):
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute(
+        "INSERT INTO transactions (user_id, type, amount) VALUES (%s, %s, %s)",
+        (user_id, type, amount)
+    )
+
+    conn.commit()
+    conn.close()
+
+def get_transactions(user_id):
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute(
+        "SELECT type, amount, created_at FROM transactions WHERE user_id=%s",
+        (user_id,)
+    )
+    
+    rows = cursor.fetchall()
+
+    transactions = [{
+        "type":row[0],
+        "amount":row[1],
+        "created_at":row[2]
+    } for row in rows]
+
+    conn.close()
+    return transactions

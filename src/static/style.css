@@ -1,6 +1,6 @@
 body {
     font-family: Arial, sans-serif;
-    background: #121212;
+    background: #181818;
     margin: 0;
     padding: 0;
     color: #e0e0e0;
@@ -9,10 +9,19 @@ body {
 .container {
     width: 400px;
     margin: 80px auto;
-    background: #1e1e1e;
+    background: #2d2d2d;
     padding: 25px;
     border-radius: 10px;
-    box-shadow: 0 0 15px rgba(0,0,0,0.6);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.7);
+}
+
+.dashboard {
+    width: 500px;
+    margin: 60px auto;
+    background: #2d2d2d;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.7);
 }
 
 h2 {
@@ -26,9 +35,10 @@ input {
     padding: 10px;
     margin: 8px -8px;
     border-radius: 5px;
-    border: 1px solid #333;
-    background: #2a2a2a;
+    border: 1px solid #444;
+    background: #3a3a3a;
     color: #e0e0e0;
+    box-sizing: border-box;
 }
 
 input::placeholder {
@@ -37,7 +47,7 @@ input::placeholder {
 
 input:focus {
     outline: none;
-    border: 1px solid #007BFF;
+    border: 1px solid #1a73e8;
 }
 
 button {
@@ -49,6 +59,7 @@ button {
     color: white;
     border-radius: 5px;
     cursor: pointer;
+    font-size: 14px;
 }
 
 button:hover {
@@ -67,15 +78,6 @@ a:hover {
     text-decoration: underline;
 }
 
-.dashboard {
-    width: 500px;
-    margin: 60px auto;
-    background: #1e1e1e;
-    padding: 25px;
-    border-radius: 10px;
-    box-shadow: 0 0 15px rgba(0,0,0,0.6);
-}
-
 .balance {
     font-size: 24px;
     text-align: center;
@@ -92,12 +94,21 @@ a:hover {
     flex: 1;
 }
 
+.actions a {
+    flex: 1;
+    text-decoration: none;
+}
+
+.actions a button {
+    width: 100%;
+}
+
 /* Remove spinner Firefox */
 input[type=number] {
     -moz-appearance: textfield;
 }
 
-/* Remove spinner other browsers */
+/* Remove spinner Chrome/Safari */
 input[type=number]::-webkit-outer-spin-button,
 input[type=number]::-webkit-inner-spin-button {
     -webkit-appearance: none;

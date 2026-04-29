@@ -1,10 +1,10 @@
-from flask import render_template, request, redirect, session
+from flask import render_template, request, redirect, session, abort
 from flask_login import login_user, login_required, current_user, logout_user
 from utils import to_cents, format_cents
 import operations
 
 MAX_BALANCE = 2_100_000_000
-MAX_DEPOSIT = MAX_BALANCE / 2
+MAX_DEPOSIT = MAX_BALANCE // 2
 
 def register_routes(app):
 
@@ -20,7 +20,8 @@ def register_routes(app):
             )
 
             if user:
-                login_user(user)
+                session.clear()
+                login_user(user, remember=True)
                 session.permanent = True
                 return redirect("/dashboard")
 
@@ -38,7 +39,7 @@ def register_routes(app):
             if success:
                 return redirect("/")
             
-            return render_template("signup.html", error="Username aleady taken")
+            return render_template("signup.html", error="Username already taken")
         return render_template("signup.html")
 
     @app.route("/dashboard", methods=["GET", "POST"])
@@ -54,7 +55,7 @@ def register_routes(app):
             
             amount = None
             try:
-                amount = to_cents(request.form.get("amount")) # Amount in cents to avoid floating point precision errors
+                amount = to_cents(request.form.get("amount")) # Amount in cents to avoid floating point precision errors by storing balances as integers
 
                 if action == "deposit":
 
@@ -66,10 +67,17 @@ def register_routes(app):
                         raise ValueError
                     
                     operations.deposit(user_id, amount)
+                    operations.add_transaction(user_id, "deposit", amount)
 
                 elif action == "withdraw":
+                    if not (0 < amount < MAX_BALANCE):
+                        raise ValueError
+                    
                     success = operations.withdraw(user_id, amount)
-                    if not success:
+
+                    if success:
+                        operations.add_transaction(user_id, "withdraw", amount)
+                    else:
                         balance = operations.get_balance(user_id)
                         return render_template("dashboard.html", error="Insufficient funds", balance=format_cents(balance))
 
@@ -77,15 +85,21 @@ def register_routes(app):
                 balance = operations.get_balance(user_id)
                 error = "Invalid amount or limit exceeded"
                 return render_template("dashboard.html", balance=format_cents(balance), error=error)
-            
-            except mysql.connector.errors.DataError:
-                balance = operations.get_balance(user_id)
-                return render_template("dashboard.html", balance=format_cents(balance), error="System error processing transaction")
 
         balance = operations.get_balance(user_id)
         return render_template("dashboard.html", balance=format_cents(balance))
+    
+    @app.route("/transactions")
+    @login_required
+    def transactions():
+        user_id = current_user.id
+
+        rows = operations.get_transactions(user_id)
+        return render_template("transactions.html", transactions=rows)
 
     @app.route("/logout", methods=["POST"])
+    @login_required
     def logout():
+        session.clear()
         logout_user()
         return redirect("/")

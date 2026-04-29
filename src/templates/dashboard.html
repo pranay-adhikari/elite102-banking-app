@@ -23,6 +23,12 @@
         </div>
     </form>
 
+    <div class="actions" style="margin-top: 15px;">
+        <a href="/transactions">
+            <button type="button">View Transactions</button>
+        </a>
+    </div>
+
     {% if error %}
     <p style="color:red; text-align:center;">{{ error }}</p>
     {% endif %}
@@ -32,9 +38,9 @@
     </form>
 
     <a href="#" onclick="document.getElementById('logout-form').submit(); return false;">
-    Logout
+        Logout
     </a>
-    
+
 </div>
 
 </body>

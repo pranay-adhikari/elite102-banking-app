@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Transactions</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<div class="dashboard">
+
+    <h2>Transaction History</h2>
+
+    <div class="balance">
+        Recent Activity
+    </div>
+
+    {% if transactions and transactions|length > 0 %}
+
+        <table style="width:100%; color:#e0e0e0; border-collapse: collapse;">
+            <tr style="border-bottom: 1px solid #333;">
+                <th style="text-align:left; padding:10px;">Type</th>
+                <th style="text-align:left; padding:10px;">Amount</th>
+                <th style="text-align:left; padding:10px;">Date</th>
+            </tr>
+
+            {% for tx in transactions %}
+            <tr style="border-bottom: 1px solid #222;">
+                <td style="padding:10px;">
+                    {% if tx.type == 'deposit' %}
+                        <span style="color:#4caf50;">Deposit</span>
+                    {% else %}
+                        <span style="color:#f44336;">Withdraw</span>
+                    {% endif %}
+                </td>
+
+                <td style="padding:10px;">
+                    ${{ "%.2f"|format(tx.amount / 100) }}
+                </td>
+
+                <td style="padding:10px; color:#aaa;">
+                    {{ tx.created_at }}
+                </td>
+            </tr>
+            {% endfor %}
+
+        </table>
+
+    {% else %}
+
+        <p style="text-align:center; color:#888;">
+            No transactions yet.
+        </p>
+
+    {% endif %}
+
+    <br>
+
+    <a href="/dashboard">← Back to Dashboard</a>
+
+</div>
+
+</body>
+</html>
