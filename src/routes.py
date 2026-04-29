@@ -3,12 +3,16 @@ from flask_login import login_user, login_required, current_user, logout_user
 from utils import to_cents, format_cents
 import operations
 
-MAX_DEPOSIT = 1_000_000_000_000
+MAX_BALANCE = 2_100_000_000
+MAX_DEPOSIT = MAX_BALANCE / 2
 
 def register_routes(app):
 
     @app.route("/", methods=["GET", "POST"])
     def login():
+        if current_user.is_authenticated:
+            return redirect("/dashboard")
+
         if request.method == "POST":
             user = operations.authenticate_user(
                 request.form["username"],
@@ -43,26 +47,40 @@ def register_routes(app):
         user_id = current_user.id
 
         if request.method == "POST":
-            action = request.form["action"]
+            action = request.form.get("action")
 
             if action not in ["deposit", "withdraw"]:
                 return "Invalid action", 400    
             
+            amount = None
             try:
-                amount = to_cents(request.form["amount"]) # Balance in cents to avoid floating point precision errors
-                if not (0 < amount < MAX_DEPOSIT):
-                    raise ValueError
+                amount = to_cents(request.form.get("amount")) # Amount in cents to avoid floating point precision errors
+
+                if action == "deposit":
+
+                    current_balance = operations.get_balance(user_id)
+                    if current_balance + amount > MAX_BALANCE:
+                        raise ValueError
+                    
+                    if not (0 < amount < MAX_DEPOSIT):
+                        raise ValueError
+                    
+                    operations.deposit(user_id, amount)
+
+                elif action == "withdraw":
+                    success = operations.withdraw(user_id, amount)
+                    if not success:
+                        balance = operations.get_balance(user_id)
+                        return render_template("dashboard.html", error="Insufficient funds", balance=format_cents(balance))
+
             except ValueError:
                 balance = operations.get_balance(user_id)
-                return render_template("dashboard.html", balance=format_cents(balance), error="Invalid amount")
-
-            if action == "deposit":
-                operations.deposit(user_id, amount)
-            elif action == "withdraw":
-                success = operations.withdraw(user_id, amount)
-                if not success:
-                    balance = operations.get_balance(user_id)
-                    return render_template("dashboard.html", error="Insufficient funds", balance=format_cents(balance))
+                error = "Invalid amount or limit exceeded"
+                return render_template("dashboard.html", balance=format_cents(balance), error=error)
+            
+            except mysql.connector.errors.DataError:
+                balance = operations.get_balance(user_id)
+                return render_template("dashboard.html", balance=format_cents(balance), error="System error processing transaction")
 
         balance = operations.get_balance(user_id)
         return render_template("dashboard.html", balance=format_cents(balance))
