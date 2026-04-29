@@ -12,6 +12,7 @@
     <form method="POST">
         <input name="username" placeholder="Username" required>
         <input name="password" type="password" placeholder="Password" required>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
 
         <button type="submit">Login</button>
     </form>
@@ -21,6 +22,7 @@
     {% if error %}
     <p style="color:red; text-align:center;">{{ error }}</p>
     {% endif %}
+    
 </div>
 
 </body>

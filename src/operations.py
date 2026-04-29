@@ -1,8 +1,12 @@
 from db import get_connection
+from user import User
+from flask_login import LoginManager
 from argon2 import PasswordHasher 
 from argon2.exceptions import VerifyMismatchError
+from utils import normalize_username
 
 def create_user(username, password):
+    username = normalize_username(username)
     conn = get_connection()
     cursor = conn.cursor()
 
@@ -33,38 +37,54 @@ def create_user(username, password):
     return True
 
 
-def login_user(username, password):
+def authenticate_user(username, password):
+    username = normalize_username(username)
     conn = get_connection()
     cursor = conn.cursor()
 
     ph = PasswordHasher()
 
     cursor.execute(
-        "SELECT id, password FROM users WHERE username=%s",
+        "SELECT id, username, password FROM users WHERE username=%s",
         (username,)
     )
 
-    user = cursor.fetchone()
-    if user:
+    row = cursor.fetchone()
+    if row:
         try:
-            ph.verify(user[1], password)
+            ph.verify(row[2], password)
 
-            if ph.check_needs_rehash(user[1]):
+            if ph.check_needs_rehash(row[2]):
                 new_hash = ph.hash(password)
                 cursor.execute(
                     "UPDATE users SET password=%s WHERE id=%s",
-                    (new_hash, user[0])
+                    (new_hash, row[0])
                 )
                 conn.commit()
 
             conn.close()
-            return user[0]
+            return User(row[0], row[1])
         except VerifyMismatchError:
             pass
 
     conn.close()
     return None
 
+def get_user_by_id(user_id):
+    conn = get_connection()
+    cursor = conn.cursor()
+    
+    cursor.execute(
+        "SELECT id, username FROM users WHERE id=%s",
+        (user_id,)
+    )
+    row = cursor.fetchone()
+
+    conn.close()
+
+    if row:
+        return User(row[0], row[1])
+    return None
 
 def get_balance(user_id):
     conn = get_connection()
@@ -75,9 +95,9 @@ def get_balance(user_id):
         (user_id,)
     )
 
-    balance = cursor.fetchone()[0]
+    cents = cursor.fetchone()[0]
     conn.close()
-    return balance
+    return cents
 
 
 def deposit(user_id, amount):

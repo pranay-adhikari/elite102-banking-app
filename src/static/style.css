@@ -91,3 +91,15 @@ a:hover {
 .actions button {
     flex: 1;
 }
+
+/* Remove spinner Firefox */
+input[type=number] {
+    -moz-appearance: textfield;
+}
+
+/* Remove spinner other browsers */
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
