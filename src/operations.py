@@ -1,6 +1,5 @@
 from db import get_connection
 from user import User
-from flask_login import LoginManager
 from argon2 import PasswordHasher 
 from argon2.exceptions import VerifyMismatchError
 from utils import normalize_username
@@ -16,7 +15,10 @@ def create_user(username, password):
     )
     if cursor.fetchone():
         conn.close()
-        return False
+        return "username_taken"
+    
+    if not(8 <= len(password) <= 128):
+        return "password_invalid"
 
     ph = PasswordHasher()
     hash = ph.hash(password)
@@ -34,7 +36,7 @@ def create_user(username, password):
     
     conn.commit()
     conn.close()
-    return True
+    return "ok"
 
 
 def authenticate_user(username, password):
@@ -145,7 +147,7 @@ def get_transactions(user_id):
     cursor = conn.cursor()
 
     cursor.execute(
-        "SELECT type, amount, created_at FROM transactions WHERE user_id=%s",
+        "SELECT type, amount, created_at FROM transactions WHERE user_id=%s ORDER BY created_at DESC",
         (user_id,)
     )
     

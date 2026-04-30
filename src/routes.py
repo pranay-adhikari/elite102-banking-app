@@ -31,15 +31,20 @@ def register_routes(app):
     @app.route("/signup", methods=["GET", "POST"])
     def signup():
         if request.method == "POST":
-            success = operations.create_user(
+            result = operations.create_user(
                 request.form["username"],
                 request.form["password"]
             )
             
-            if success:
+            if result == "ok":
                 return redirect("/")
             
-            return render_template("signup.html", error="Username already taken")
+            errors = {
+                "username_taken": "Username already taken",
+                "password_invalid": "Password must be between 8 and 128 characters"
+            }
+
+            return render_template("signup.html", error=errors[result])
         return render_template("signup.html")
 
     @app.route("/dashboard", methods=["GET", "POST"])
