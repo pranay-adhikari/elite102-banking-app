@@ -1,0 +1,8 @@
+flask
+flask-session
+flask-login
+flask-wtf
+mysql-connector-python
+redis
+argon2-cffi
+python-dotenv
